@@ -35,22 +35,18 @@ with st.form("add_expense_form"):
         if amount <= 0:
             st.error("Please enter a valid amount greater than 0.")
         else:
-            # Debug: show what we're sending
             payload = {
                 "date": expense_date.strftime("%Y-%m-%d"),
                 "category": category,
                 "amount": amount,
                 "note": note if note else None
             }
-            st.write("Sending:", payload)  # Debug
             
             response = authed_request(
                 "POST",
                 "http://127.0.0.1:8000/expenses/expenses",
                 json=payload
             )
-            
-            st.write("Response:", response)  # Debug
             
             if response and response.status_code == 200:
                 st.success("✅ Expense added successfully!")
