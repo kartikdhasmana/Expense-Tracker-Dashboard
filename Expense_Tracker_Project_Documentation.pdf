@@ -1,0 +1,129 @@
+# Expense Tracker Project Documentation
+
+## Overview
+The Expense Tracker Dashboard is a full-stack application designed to manage and analyze personal expenses. It consists of a FastAPI backend for handling RESTful APIs and a Streamlit frontend for user interaction. The project uses SQLite as the database and implements JWT-based authentication for secure access.
+
+---
+
+## Project Structure
+
+### Backend
+- **Framework**: FastAPI
+- **Database**: SQLite (via SQLModel ORM)
+- **Authentication**: JWT (JSON Web Tokens)
+- **Key Files**:
+  - `main.py`: Entry point for the FastAPI application.
+  - `auth.py`: Handles user authentication and token generation.
+  - `routers/`: Contains route handlers for users, expenses, and analytics.
+  - `dependencies.py`: Configures OAuth2PasswordBearer for token-based authentication.
+
+### Frontend
+- **Framework**: Streamlit
+- **Key Files**:
+  - `app.py`: Entry point for the Streamlit application.
+  - `pages/`: Contains individual pages for login, adding expenses, listing expenses, and analytics.
+
+---
+
+## Key Features
+
+### Backend
+1. **User Authentication**:
+   - Endpoint: `/users/login`
+   - Generates JWT tokens for authenticated access.
+
+2. **Expense Management**:
+   - Endpoint: `/expenses/expenses`
+   - Allows users to add, view, and manage expenses.
+
+3. **Analytics**:
+   - Endpoint: `/analytics`
+   - Provides insights into spending patterns.
+
+### Frontend
+1. **Login Page**:
+   - Allows users to log in and retrieve tokens.
+
+2. **Add Expense Page**:
+   - Form to add new expenses.
+
+3. **List Expenses Page**:
+   - Displays a table of all expenses.
+
+4. **Analytics Page**:
+   - Visualizes spending data using charts.
+
+---
+
+## How It Works
+
+### Authentication Flow
+1. **Login**:
+   - User sends credentials to `/users/login`.
+   - Backend validates credentials and returns a JWT token.
+
+2. **Token Usage**:
+   - Token is included in the `Authorization` header for subsequent requests.
+
+### Expense Management
+1. **Add Expense**:
+   - User sends expense data to `/expenses/expenses` with a valid token.
+   - Backend validates the token and stores the expense in the database.
+
+2. **List Expenses**:
+   - User requests `/expenses/expenses` with a valid token.
+   - Backend retrieves and returns the user's expenses.
+
+### Analytics
+1. **Data Aggregation**:
+   - Backend calculates spending patterns from the database.
+
+2. **Visualization**:
+   - Frontend displays charts and graphs based on the aggregated data.
+
+---
+
+## Swagger UI Integration
+- **Purpose**: Test API endpoints interactively.
+- **Configuration**:
+  - `dependencies.py`: Configures `OAuth2PasswordBearer` with `/users/login` as the token URL.
+  - `main.py`: Customizes OpenAPI schema to include authentication details.
+
+---
+
+## Testing
+
+### Manual Testing
+1. **Postman**:
+   - Used to test endpoints with and without authentication.
+
+2. **cURL**:
+   - Command-line tool for testing API requests.
+
+### Automated Testing
+- **Script**: `test_authenticated_request.py`
+  - Logs in to retrieve a token.
+  - Makes authenticated requests to add expenses.
+
+---
+
+## Deployment
+- **Backend**: Hosted using Uvicorn.
+- **Frontend**: Run locally using Streamlit.
+
+---
+
+## Future Enhancements
+1. **Add User Roles**:
+   - Differentiate between admin and regular users.
+
+2. **Improve Analytics**:
+   - Add more detailed visualizations.
+
+3. **Deploy to Cloud**:
+   - Host the application on AWS or Azure.
+
+---
+
+## Conclusion
+The Expense Tracker Dashboard is a robust application for managing personal finances. It combines the power of FastAPI and Streamlit to deliver a seamless user experience. The project is modular, making it easy to extend and maintain.

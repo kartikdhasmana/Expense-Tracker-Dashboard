@@ -7,3 +7,5 @@ python-dotenv
 streamlit
 httpx
 plotly
+pandas
+argon2-cffi

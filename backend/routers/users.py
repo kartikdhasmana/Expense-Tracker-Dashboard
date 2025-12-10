@@ -5,6 +5,8 @@ from ..database import engine
 from ..models import User
 from ..schemas import UserCreate
 from passlib.context import CryptContext
+from ..config import SECRET_KEY, ALGORITHM
+from jose import jwt
 
 router = APIRouter()
 
@@ -26,9 +28,18 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
-@router.post("/login")
+@router.post("/login", response_model=dict)
 def login(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.username == user.username).first()
-    if not db_user or not pwd_context.verify(user.password, db_user.password):
-        raise HTTPException(status_code=400, detail="Invalid username or password")
-    return {"message": "Login successful"}
+    try:
+        db_user = db.query(User).filter(User.username == user.username).first()
+        if not db_user or not pwd_context.verify(user.password, db_user.password):
+            raise HTTPException(status_code=400, detail="Invalid username or password. Please try again.")
+
+        # Generate JWT token (sub must be a string per JWT spec)
+        payload = {"sub": str(db_user.id)}
+        token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+        return {"access_token": token, "token_type": "bearer"}
+    except Exception as e:
+        print("Error during login:", str(e))  # Debug log for errors
+        raise

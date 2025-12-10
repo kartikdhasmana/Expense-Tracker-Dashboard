@@ -9,15 +9,18 @@ from backend.models import User
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
     """Extracts the user ID from the JWT token."""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int = payload.get("sub")
+        user_id = payload.get("sub")
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-        return user_id
-    except JWTError:
+        return int(user_id)
+    except JWTError as e:
+        print(f"JWT Error: {e}")  # Debug log
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid user ID in token")
