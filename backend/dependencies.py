@@ -1,13 +1,9 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from backend.schemas import TokenData
 from sqlmodel import Session
 from backend.models import User
-
-# Secret key and algorithm for JWT
-SECRET_KEY = "your_secret_key"
-ALGORITHM = "HS256"
+from backend.config import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 

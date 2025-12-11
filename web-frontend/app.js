@@ -15,7 +15,8 @@ const state = {
     token: localStorage.getItem('token'),
     user: null,
     expenses: [],
-    analytics: null
+    analytics: null,
+    signupEmail: null  // Store email during OTP flow
 };
 
 // ============================================
@@ -60,9 +61,9 @@ function showToast(message, type = 'success') {
 }
 
 function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: 'USD'
+        currency: 'INR'
     }).format(amount);
 }
 
@@ -146,23 +147,72 @@ async function login(username, password) {
 }
 
 async function signup(username, password) {
+    // This is now handled by the OTP flow
+    showToast('Please use email verification to sign up', 'warning');
+}
+
+async function sendOTP(email) {
     showLoading();
     
-    const result = await apiRequest('/users/signup', {
+    const result = await apiRequest('/users/send-otp', {
         method: 'POST',
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email }),
         skipAuth: true
     });
     
     hideLoading();
     
     if (result.success) {
-        showToast('Account created! Logging you in...');
-        // Auto-login after signup
-        await login(username, password);
+        state.signupEmail = email;
+        showToast('Verification code sent to your email!');
+        
+        // Show step 2
+        $('#signup-step-1').style.display = 'none';
+        $('#signup-step-2').style.display = 'block';
+        $('#otp-email-display').textContent = email;
+        $('#signup-otp').focus();
+        
+        return true;
     } else {
-        showToast(result.error || 'Signup failed', 'error');
+        showToast(result.error || 'Failed to send verification code', 'error');
+        return false;
     }
+}
+
+async function verifyOTPAndSignup(email, otp, username, password) {
+    showLoading();
+    
+    const result = await apiRequest('/users/verify-otp-signup', {
+        method: 'POST',
+        body: JSON.stringify({ email, otp, username, password }),
+        skipAuth: true
+    });
+    
+    hideLoading();
+    
+    if (result.success) {
+        state.token = result.data.access_token;
+        localStorage.setItem('token', state.token);
+        state.signupEmail = null;
+        showToast('Account created successfully! Welcome!');
+        navigate('/dashboard');
+        return true;
+    } else {
+        showToast(result.error || 'Verification failed', 'error');
+        return false;
+    }
+}
+
+function resetSignupForm() {
+    // Reset to step 1
+    $('#signup-step-1').style.display = 'block';
+    $('#signup-step-2').style.display = 'none';
+    $('#signup-email').value = '';
+    $('#signup-otp').value = '';
+    $('#signup-username').value = '';
+    $('#signup-password').value = '';
+    $('#signup-confirm').value = '';
+    state.signupEmail = null;
 }
 
 function logout() {
@@ -312,6 +362,7 @@ function handleRoute() {
     if (route === 'add') initAddExpensePage();
     if (route === 'expenses') loadExpensesPage();
     if (route === 'analytics') loadAnalyticsPage();
+    if (route === 'signup') resetSignupForm();
 }
 
 function updateNavigation(route) {
@@ -567,7 +618,7 @@ function renderCharts(categoryData) {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        callback: value => '$' + value
+                        callback: value => '₹' + value
                     }
                 }
             }
@@ -623,15 +674,41 @@ function initEventListeners() {
         await login(username, password);
     });
     
-    // Signup form
-    $('#signup-form').addEventListener('submit', async (e) => {
+    // Send OTP form (Step 1)
+    $('#send-otp-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const email = $('#signup-email').value.trim();
+        
+        if (!email) {
+            showToast('Please enter your email', 'warning');
+            return;
+        }
+        
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showToast('Please enter a valid email address', 'error');
+            return;
+        }
+        
+        await sendOTP(email);
+    });
+    
+    // Verify OTP and complete signup (Step 2)
+    $('#verify-otp-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const otp = $('#signup-otp').value.trim();
         const username = $('#signup-username').value.trim();
         const password = $('#signup-password').value;
         const confirm = $('#signup-confirm').value;
         
-        if (!username || !password || !confirm) {
+        if (!otp || !username || !password || !confirm) {
             showToast('Please fill in all fields', 'warning');
+            return;
+        }
+        
+        if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+            showToast('Please enter a valid 6-digit code', 'error');
             return;
         }
         
@@ -645,7 +722,19 @@ function initEventListeners() {
             return;
         }
         
-        await signup(username, password);
+        await verifyOTPAndSignup(state.signupEmail, otp, username, password);
+    });
+    
+    // Back to step 1 button
+    $('#back-to-step1').addEventListener('click', () => {
+        resetSignupForm();
+    });
+    
+    // Resend OTP button
+    $('#resend-otp-btn').addEventListener('click', async () => {
+        if (state.signupEmail) {
+            await sendOTP(state.signupEmail);
+        }
     });
     
     // Logout

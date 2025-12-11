@@ -1,8 +1,26 @@
 # Pydantic schemas
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 class UserCreate(BaseModel):
+    email: str
+    username: str
+    password: str
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class SendOTPRequest(BaseModel):
+    email: str
+
+class SendOTPResponse(BaseModel):
+    message: str
+    email: str
+
+class VerifyOTPSignupRequest(BaseModel):
+    email: str
+    otp: str
     username: str
     password: str
 
@@ -21,6 +39,3 @@ class ExpenseResponse(BaseModel):
     
     class Config:
         from_attributes = True
-
-class TokenData(BaseModel):
-    sub: Optional[int]

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Simple HTTP server to serve the web frontend.
-Run this from the web-frontend directory.
+Run this from the project root directory.
 """
 import http.server
 import socketserver

@@ -266,6 +266,110 @@ body {
     text-decoration: underline;
 }
 
+/* Signup Steps */
+.signup-step {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.step-indicator .step {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.step-indicator .step.active {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.step-indicator .step.completed {
+    background: var(--success);
+    color: white;
+}
+
+.step-indicator .step-line {
+    width: 60px;
+    height: 3px;
+    background: var(--gray-200);
+    margin: 0 12px;
+    transition: var(--transition);
+}
+
+.step-indicator .step-line.active {
+    background: var(--success);
+}
+
+.step-title {
+    text-align: center;
+    color: var(--gray-600);
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+}
+
+.step-title span {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.resend-otp {
+    text-align: center;
+    margin-top: 16px;
+    color: var(--gray-500);
+    font-size: 0.9rem;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: inherit;
+    padding: 0;
+}
+
+.btn-link:hover {
+    color: var(--primary-dark);
+}
+
+.btn-link:disabled {
+    color: var(--gray-400);
+    cursor: not-allowed;
+}
+
+.btn-back {
+    margin-top: 12px;
+}
+
+/* OTP Input Styling */
+#signup-otp {
+    text-align: center;
+    letter-spacing: 8px;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
 /* Dashboard Pages */
 .dashboard-page {
     padding-top: 64px;
