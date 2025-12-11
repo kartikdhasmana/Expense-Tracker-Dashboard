@@ -1,5 +1,6 @@
 # FastAPI main entry point
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .database import create_db_and_tables
 from dotenv import load_dotenv
 import os
@@ -10,6 +11,15 @@ from fastapi.openapi.utils import get_openapi
 load_dotenv()
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 def on_startup():
